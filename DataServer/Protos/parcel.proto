@@ -1,0 +1,38 @@
+
+syntax = "proto3";
+
+option csharp_namespace = "DataServer";
+option java_multiple_files = true;
+option java_package = "dk.via.sep3.grpc";
+option java_outer_classname = "ParcelProto";
+
+package parcel;
+
+service ParcelService {
+  rpc SaveParcel (SaveParcelRequest) returns (ParcelResponse);
+  rpc GetParcel (GetParcelRequest) returns (ParcelResponse);
+}
+
+message SaveParcelRequest {
+  string tracking_id = 1;
+  double weight = 2;
+  string destination = 3;
+}
+
+message GetParcelRequest {
+  int32 id = 1;
+}
+
+message ParcelResponse {
+  bool success = 1;
+  string message = 2;
+  ParcelData parcel = 3;
+}
+
+message ParcelData {
+  int32 id = 1;
+  string tracking_id = 2;
+  double weight = 3;
+  string destination = 4;
+  string status = 5;
+}
