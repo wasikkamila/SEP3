@@ -2,11 +2,11 @@
 
 public class Parcel
 {
-    int id { get; set; }
-    string TrackingId { get; set; }
-    double Weight { get; set; }
-    string Destination { get; set; }
-    string Status { get; set; }
+    public int Id { get; set; }
+    public string TrackingId { get; set; }
+    public double Weight { get; set; }
+    public string Destination { get; set; }
+    public string Status { get; set; }
 
     public Parcel()
     {
