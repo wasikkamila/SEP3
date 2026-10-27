@@ -83,3 +83,4 @@ C:\Users\Dawid\RiderProjects\ParcelClient\ParcelClient\obj\Debug\net10.0\ParcelC
 C:\Users\Dawid\RiderProjects\ParcelClient\ParcelClient\obj\Debug\net10.0\ref\ParcelClient.dll
 C:\Users\Dawid\RiderProjects\ParcelClient\ParcelClient\obj\Debug\net10.0\compressed\vgjtb8ziiu-{0}-tc9oq6v2u2-tc9oq6v2u2.gz
 C:\Users\Dawid\RiderProjects\ParcelClient\ParcelClient\obj\Debug\net10.0\compressed\jhwxqmmndz-{0}-tc9oq6v2u2-tc9oq6v2u2.gz
+C:\Users\Dawid\RiderProjects\ParcelClient\ParcelClient\obj\Debug\net10.0\ParcelClient.sourcelink.json
