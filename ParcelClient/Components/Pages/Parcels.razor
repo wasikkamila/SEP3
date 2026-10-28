@@ -1,0 +1,66 @@
+﻿@page "/parcels"
+@rendermode InteractiveServer
+@inject ParcelClient.Services.IParcelService Service
+@using ParcelClient.Model
+
+<h3>New parcel</h3>
+
+<EditForm Model="newParcel" OnValidSubmit="SaveAsync" FormName="newParcel">
+    <div><label>Length (cm) <InputNumber @bind-Value="newParcel.Length" /></label></div>
+    <div><label>Width (cm) <InputNumber @bind-Value="newParcel.Width" /></label></div>
+    <div><label>Height (cm) <InputNumber @bind-Value="newParcel.Height" /></label></div>
+    <div><label>Weight (kg) <InputNumber @bind-Value="newParcel.Weight" /></label></div>
+    <div><label>Destination <InputText @bind-Value="newParcel.Destination" /></label></div>
+    <button type="submit">Save</button>
+</EditForm>
+
+@if (saveMessage != null)
+{
+    <p>@saveMessage</p>
+}
+
+<hr />
+
+<h3>Find parcel</h3>
+<input @bind="searchId" placeholder="Parcel id" />
+<button @onclick="FindAsync">Search</button>
+
+@if (searched)
+{
+    @if (found == null)
+    {
+        <p>No parcel with id @searchId.</p>
+    }
+    else
+    {
+        <ul>
+            <li>Id: @found.Id</li>
+            <li>Size: @found.Length x @found.Width x @found.Height cm</li>
+            <li>Weight: @found.Weight kg</li>
+            <li>Destination: @found.Destination</li>
+            <li>Status: @found.Status</li>
+            <li>Registered at: @found.RegisteredAt</li>
+        </ul>
+    }
+}
+
+@code {
+    private Parcel newParcel = new();
+    private string? saveMessage;
+    private string searchId = "";
+    private Parcel? found;
+    private bool searched;
+
+    private async Task SaveAsync()
+    {
+        var saved = await Service.SaveAsync(newParcel);
+        saveMessage = $"Saved parcel with id {saved.Id}";
+        newParcel = new();
+    }
+
+    private async Task FindAsync()
+    {
+        found = await Service.FindByIdAsync(searchId.Trim());
+        searched = true;
+    }
+}
