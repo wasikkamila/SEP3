@@ -1,4 +1,4 @@
-﻿using ParcelClient.Model;
+﻿using ParcelClient.Models;
 
 namespace ParcelClient.Services;
 

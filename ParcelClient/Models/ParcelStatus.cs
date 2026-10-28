@@ -1,4 +1,4 @@
-﻿namespace ParcelClient.Model;
+﻿namespace ParcelClient.Models;
 
 public enum ParcelStatus
 {
