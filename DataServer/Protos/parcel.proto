@@ -1,4 +1,3 @@
-
 syntax = "proto3";
 
 option csharp_namespace = "DataServer";
@@ -8,31 +7,83 @@ option java_outer_classname = "ParcelProto";
 
 package parcel;
 
+// gRPC service for parcel operations
 service ParcelService {
-  rpc SaveParcel (SaveParcelRequest) returns (ParcelResponse);
-  rpc GetParcel (GetParcelRequest) returns (ParcelResponse);
+  rpc SaveParcel(SaveParcelRequest) returns (ParcelResponse);
+  rpc GetParcel(GetParcelRequest) returns (ParcelResponse);
+  rpc GetAvailableVans(GetAvailableVansRequest)
+      returns (GetAvailableVansResponse);
+  rpc AssignParcelToVan(AssignParcelToVanRequest)
+      returns (AssignParcelToVanResponse);
 }
 
+// Details needed to register a parcel
 message SaveParcelRequest {
-  string tracking_id = 1;
+  double volume = 1;
   double weight = 2;
   string destination = 3;
+  string status = 4;
+  string time_registered = 5;
+  string van_id = 6;
+  int32 registered_by_user_id = 7;
 }
 
+// Get a parcel by its ID
 message GetParcelRequest {
-  int32 id = 1;
+  int32 parcel_id = 1;
 }
 
+// Result of a parcel operation
 message ParcelResponse {
   bool success = 1;
   string message = 2;
   ParcelData parcel = 3;
 }
 
+// Complete parcel information
 message ParcelData {
-  int32 id = 1;
-  string tracking_id = 2;
+  int32 parcel_id = 1;
+  double volume = 2;
   double weight = 3;
   string destination = 4;
   string status = 5;
+  string time_registered = 6;
+  string van_id = 7;
+  int32 registered_by_user_id = 8;
 }
+
+// Find vans for a destination
+message GetAvailableVansRequest {
+  string destination = 1;
+}
+
+// Van information
+message VanData {
+  string van_id = 1;
+  string destination = 2;
+  int32 capacity = 3;
+}
+
+// List of available vans
+message GetAvailableVansResponse {
+  repeated VanData vans = 1;
+}
+
+// Assign or change a parcel's van
+message AssignParcelToVanRequest {
+  int32 parcel_id = 1;
+  string van_id = 2;
+}
+
+// Result of assigning a van
+message AssignParcelToVanResponse {
+  bool success = 1;
+  string message = 2;
+  ParcelData parcel = 3;
+}
+
+
+
+
+  
+ 
