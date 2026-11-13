@@ -1,3 +1,4 @@
+
 package dk.via.sep3.sortinglogicserver.Controller;
 
 import dk.via.sep3.sortinglogicserver.dto.ParcelRequest;
@@ -9,8 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-public class ParcelController
-{
+public class ParcelController {
+
   private final ParcelService parcelService;
 
   public ParcelController(ParcelService parcelService) {
@@ -38,18 +39,8 @@ public class ParcelController
           .body("Data service returned no parcel");
     }
 
-    var parcel = grpcResponse.getParcel();
-
-    ParcelResponse response = new ParcelResponse(
-        parcel.getId(),
-        parcel.getTrackingId(),
-        parcel.getWeight(),
-        parcel.getDestination(),
-        parcel.getStatus()
-    );
-
     return ResponseEntity.status(HttpStatus.CREATED)
-        .body(response);
+        .body(toDto(grpcResponse.getParcel()));
   }
 
   @GetMapping("/parcels/{id}")
@@ -67,16 +58,19 @@ public class ParcelController
           .body("Data service returned no parcel");
     }
 
-    var parcel = grpcResponse.getParcel();
+    return ResponseEntity.ok(toDto(grpcResponse.getParcel()));
+  }
 
-    ParcelResponse response = new ParcelResponse(
-        parcel.getId(),
-        parcel.getTrackingId(),
+  private ParcelResponse toDto(dk.via.sep3.grpc.ParcelData parcel) {
+    return new ParcelResponse(
+        parcel.getParcelId(),
+        parcel.getVolume(),
         parcel.getWeight(),
         parcel.getDestination(),
-        parcel.getStatus()
+        parcel.getStatus(),
+        parcel.getTimeRegistered(),
+        parcel.getVanId(),
+        parcel.getRegisteredByUserId()
     );
-
-    return ResponseEntity.ok(response);
   }
 }
