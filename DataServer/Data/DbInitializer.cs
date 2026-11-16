@@ -8,8 +8,8 @@ public static class DbInitializer
         if (!db.Vans.Any())
         {
             db.Vans.AddRange(
-                new Van {Destination = "Aarhus", Capacity = 5},
-                new Van {Destination = "Copenhagen", Capacity = 10},)
+                new Van { Destination = "Aarhus", Capacity = 5 },
+                new Van { Destination = "Copenhagen", Capacity = 10 });
         }
     }
 }
