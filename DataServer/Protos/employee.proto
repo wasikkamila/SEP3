@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+option csharp_namespace = "DataServer";
+option java_multiple_files = true;
+option java_package = "dk.via.sep3.grpc";
+option java_outer_classname = "EmployeeProto";
+
+package employee;
+
+// gRPC service for employee operations
+service EmployeeService {
+
+  // Get employee by ID
+  rpc GetEmployee (GetEmployeeRequest)
+      returns (EmployeeResponse);
+
+  // Get all employees
+  rpc GetAllEmployees (GetAllEmployeesRequest)
+      returns (GetAllEmployeesResponse);
+}
+
+// Request employee by ID
+message GetEmployeeRequest {
+  int32 user_id = 1;
+}
+
+// Request all employees
+message GetAllEmployeesRequest {
+}
+
+// Response for one employee
+message EmployeeResponse {
+  bool success = 1;
+  string message = 2;
+  EmployeeData employee = 3;
+}
+
+// Response for all employees
+message GetAllEmployeesResponse {
+  repeated EmployeeData employees = 1;
+}
+
+// Employee information
+message EmployeeData {
+  int32 user_id = 1;
+  string username = 2;
+  string role = 3;
+}
