@@ -1,0 +1,31 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "DataServer.Grpc";
+option java_package = "dk.via.parcelsorting.grpc";
+option java_multiple_files = true;
+
+package employee;
+
+service EmployeeService 
+{
+  rpc GetByUsername (GetByUsernameRequest) returns (EmployeeReply);
+}
+
+enum Role
+{
+  WREHOUSE_WORKER = 0;
+  DISPATCH_MANAGER = 1;
+}
+
+message GetByUsernameRequest
+{
+  string username = 1;
+}
+
+message EmployeeReply
+{
+  int32 id = 1;
+  string username = 2;
+  string password_hash = 3;
+  Role role = 4;
+}
