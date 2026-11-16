@@ -17,11 +17,18 @@ public class ParcelServiceImpl : ParcelService.ParcelServiceBase
         SaveParcelRequest request,
         ServerCallContext context)
     {
-        Parcel parcel = new Parcel(
-            request.TrackingId,
-            request.Weight,
-            request.Destination
-        );
+        Parcel parcel = new Parcel
+        {
+            Volume = request.Volume,
+            Weight = request.Weight,
+            Destination = request.Destination,
+            Status = string.IsNullOrWhiteSpace(request.Status)
+                ? "Registered"
+                : request.Status,
+            TimeRegistered = request.TimeRegistered,
+            VanId = request.VanId,
+            RegisteredByUserId = request.RegisteredByUserId
+        };
 
         Parcel savedParcel = await repository.AddAsync(parcel);
 
@@ -39,7 +46,8 @@ public class ParcelServiceImpl : ParcelService.ParcelServiceBase
     {
         try
         {
-            Parcel parcel = await repository.GetSingleAsync(request.Id);
+            Parcel parcel = await repository.GetSingleAsync(
+                request.ParcelId);
 
             return new ParcelResponse
             {
@@ -62,11 +70,15 @@ public class ParcelServiceImpl : ParcelService.ParcelServiceBase
     {
         return new ParcelData
         {
-            Id = parcel.Id,
-            TrackingId = parcel.TrackingId,
+            ParcelId = parcel.Id,
+            Volume = parcel.Volume,
             Weight = parcel.Weight,
             Destination = parcel.Destination,
-            Status = parcel.Status
+            Status = parcel.Status,
+            TimeRegistered = parcel.TimeRegistered,
+            VanId = parcel.VanId,
+            RegisteredByUserId = parcel.RegisteredByUserId
         };
     }
 }
+
