@@ -1,0 +1,48 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "DataServer.Grpc";
+option java_multiple_files = true;
+option java_package = "dk.via.sep3.grpc";
+option java_outer_classname = "VanProto";
+
+package van;
+
+import "google/protobuf/empty.proto";
+
+service VanService
+{
+  rpc GetAvailableVans (GetAvailableVansRequest) returns (VanListResponse);
+  rpc GetAllVans (google.protobuf.Empty) returns (VanListResponse);
+  rpc AssignParcelToVan (AssignParcelToVanRequest) returns (AssignParcelToVanResponse);
+  
+}
+
+message GetAvailableVansRequest
+{
+  string destination = 1;
+}
+
+message VanListResponse
+{
+  repeated VanData vans = 1;
+}
+
+message AssignParcelToVanRequest
+{
+  int32 parcel_id = 1;
+  int32 van_id = 2;
+}
+
+message AssignParcelToVanResponse
+{
+  bool success = 1;
+  string message = 2;
+}
+
+message VanData
+{
+  int32 van_id = 1;
+  string destination = 2;
+  int32 capacity = 3;
+  int32 parcel_count = 4;
+}
