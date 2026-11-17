@@ -1,0 +1,62 @@
+﻿@page "/"
+@page "/login"
+@inject IAuthService AuthService
+@inject CustomAuthProvider AuthProvider
+@inject NavigationManager Nav
+@using ParcelClient.Model
+@using ParcelClient.Services
+
+<div style="max-width: 400px;">
+    <h3 class="mb-4">Login</h3>
+
+    <div class="mb-3">
+        <label class="form-label">Username</label>
+        <input class="form-control" @bind="username" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input class="form-control" type="password" @bind="password" />
+    </div>
+
+    <button class="btn btn-primary" @onclick="DoLogin" disabled="@busy">Login</button>
+
+    @if (error != null)
+    {
+        <div class="alert alert-danger mt-3">@error</div>
+    }
+</div>
+
+@code {
+    private string username = "";
+    private string password = "";
+    private string? error;
+    private bool busy;
+
+    private async Task DoLogin()
+    {
+        error = null;
+        busy = true;
+
+        try
+        {
+            var result = await AuthService.LoginAsync(username, password);
+
+            if (result is null)
+            {
+                error = "Wrong username or password.";
+                return;
+            }
+
+            AuthProvider.SignIn(result.Username, result.Role);
+            Nav.NavigateTo(result.Role == UserRole.Admin ? "/admin" : "/parcels");
+        }
+        catch (HttpRequestException)
+        {
+            error = "Could not reach the server. Try again.";
+        }
+        finally
+        {
+            busy = false;
+        }
+    }
+}

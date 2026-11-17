@@ -1,4 +1,4 @@
-﻿namespace ParcelClient.Models;
+﻿namespace ParcelClient.Model;
 
 public class Parcel
 {

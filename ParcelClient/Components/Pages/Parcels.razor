@@ -1,48 +1,71 @@
 ﻿@page "/parcels"
-@rendermode InteractiveServer
+@attribute [Authorize(Roles = "Worker")]
 @inject ParcelClient.Services.IParcelService Service
-@using ParcelClient.Models
+@using ParcelClient.Model
 
-<h3>New parcel</h3>
+<div style="max-width: 500px;">
+    <h3 class="mb-3">New parcel</h3>
 
-<EditForm Model="newParcel" OnValidSubmit="SaveAsync" FormName="newParcel">
-    <div><label>Length (cm) <InputNumber @bind-Value="newParcel.Length" /></label></div>
-    <div><label>Width (cm) <InputNumber @bind-Value="newParcel.Width" /></label></div>
-    <div><label>Height (cm) <InputNumber @bind-Value="newParcel.Height" /></label></div>
-    <div><label>Weight (kg) <InputNumber @bind-Value="newParcel.Weight" /></label></div>
-    <div><label>Destination <InputText @bind-Value="newParcel.Destination" /></label></div>
-    <button type="submit">Save</button>
-</EditForm>
+    <EditForm Model="newParcel" OnValidSubmit="SaveAsync" FormName="newParcel">
+        <div class="row mb-3">
+            <div class="col">
+                <label class="form-label">Length (cm)</label>
+                <InputNumber class="form-control" @bind-Value="newParcel.Length" />
+            </div>
+            <div class="col">
+                <label class="form-label">Width (cm)</label>
+                <InputNumber class="form-control" @bind-Value="newParcel.Width" />
+            </div>
+            <div class="col">
+                <label class="form-label">Height (cm)</label>
+                <InputNumber class="form-control" @bind-Value="newParcel.Height" />
+            </div>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Weight (kg)</label>
+            <InputNumber class="form-control" @bind-Value="newParcel.Weight" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Destination</label>
+            <InputText class="form-control" @bind-Value="newParcel.Destination" />
+        </div>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </EditForm>
 
-@if (saveMessage != null)
-{
-    <p>@saveMessage</p>
-}
-
-<hr />
-
-<h3>Find parcel</h3>
-<input @bind="searchId" placeholder="Parcel id" />
-<button @onclick="FindAsync">Search</button>
-
-@if (searched)
-{
-    @if (found == null)
+    @if (saveMessage != null)
     {
-        <p>No parcel with id @searchId.</p>
+        <div class="alert alert-success mt-3">@saveMessage</div>
     }
-    else
+
+    <hr class="my-4" />
+
+    <h3 class="mb-3">Find parcel</h3>
+    <div class="input-group mb-3">
+        <input class="form-control" @bind="searchId" placeholder="Parcel id" />
+        <button class="btn btn-secondary" @onclick="FindAsync">Search</button>
+    </div>
+
+    @if (searched)
     {
-        <ul>
-            <li>Id: @found.Id</li>
-            <li>Size: @found.Length x @found.Width x @found.Height cm</li>
-            <li>Weight: @found.Weight kg</li>
-            <li>Destination: @found.Destination</li>
-            <li>Status: @found.Status</li>
-            <li>Registered at: @found.RegisteredAt</li>
-        </ul>
+        @if (found == null)
+        {
+            <div class="alert alert-warning">No parcel with id @searchId.</div>
+        }
+        else
+        {
+            <table class="table table-sm">
+                <tbody>
+                    <tr><th>Id</th><td>@found.Id</td></tr>
+                    <tr><th>Size</th><td>@found.Length x @found.Width x @found.Height cm</td></tr>
+                    <tr><th>Weight</th><td>@found.Weight kg</td></tr>
+                    <tr><th>Destination</th><td>@found.Destination</td></tr>
+                    <tr><th>Status</th><td>@found.Status</td></tr>
+                    <tr><th>Registered</th><td>@found.RegisteredAt</td></tr>
+                </tbody>
+            </table>
+        }
     }
-}
+</div>
 
 @code {
     private Parcel newParcel = new();
