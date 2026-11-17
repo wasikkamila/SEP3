@@ -1,6 +1,9 @@
 using DataServer.Entities;
+using DataServer.Grpc;
 using DataServer.Repositories;
+using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
+using Microsoft.EntityFrameworkCore;
 
 namespace DataServer.Services;
 
@@ -13,34 +16,55 @@ public class ParcelServiceImpl : ParcelService.ParcelServiceBase
         this.repository = repository;
     }
 
-    public override async Task<ParcelResponse> SaveParcel(
+    public override async Task<ParcelResponse> CreateParcel(
         SaveParcelRequest request,
         ServerCallContext context)
     {
+        if (request.Volume <= 0 || request.Weight <= 0 ||
+            string.IsNullOrWhiteSpace(request.Destination))
+        {
+            return new ParcelResponse
+            {
+                Success = false,
+                Message =
+                    "Volume and weight must be above 0, and destination is required"
+            };
+        }  
+        
         Parcel parcel = new Parcel
         {
             Volume = request.Volume,
             Weight = request.Weight,
             Destination = request.Destination,
-            Status = string.IsNullOrWhiteSpace(request.Status)
-                ? "Registered"
-                : request.Status,
-            TimeRegistered = request.TimeRegistered,
-            VanId = request.VanId,
+            Status = ParcelStatus.Registered,
+            RegisteredAt = DateTime.Now,
             RegisteredByUserId = request.RegisteredByUserId
+            // van stays empty because it isn't in a van yet
         };
 
-        Parcel savedParcel = await repository.AddAsync(parcel);
-
-        return new ParcelResponse
+        try
         {
-            Success = true,
-            Message = "Parcel saved successfully",
-            Parcel = ToParcelData(savedParcel)
-        };
+            Parcel savedParcel = await repository.AddAsync(parcel);
+
+            return new ParcelResponse
+            {
+                Success = true,
+                Message = "Parcel saved successfully",
+                Parcel = ToParcelData(savedParcel)
+            };
+        }
+        catch (DbUpdateException)
+        {
+            return new ParcelResponse
+            {
+                Success = false,
+                Message = "Parcel could not be saved"
+            };
+        }
+        
     }
 
-    public override async Task<ParcelResponse> GetParcel(
+    public override async Task<ParcelResponse> GetParcelById(
         GetParcelRequest request,
         ServerCallContext context)
     {
@@ -61,24 +85,30 @@ public class ParcelServiceImpl : ParcelService.ParcelServiceBase
             return new ParcelResponse
             {
                 Success = false,
-                Message = "Parcel not found"
+                Message = $"Parcel {request.ParcelId} not found"
             };
         }
     }
 
     private static ParcelData ToParcelData(Parcel parcel)
     {
-        return new ParcelData
+        var data = new ParcelData
         {
             ParcelId = parcel.Id,
             Volume = parcel.Volume,
             Weight = parcel.Weight,
             Destination = parcel.Destination,
-            Status = parcel.Status,
-            TimeRegistered = parcel.TimeRegistered,
-            VanId = parcel.VanId,
+            Status = (ParcelStatusType)parcel.Status,
+            RegisteredAt = Timestamp.FromDateTime(parcel.RegisteredAt),
             RegisteredByUserId = parcel.RegisteredByUserId
         };
+
+        if (parcel.VanId.HasValue)
+        {
+            data.VanId = parcel.VanId.Value;
+        }
+
+        return data;
     }
 }
 

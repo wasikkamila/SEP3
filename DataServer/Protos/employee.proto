@@ -13,7 +13,7 @@ service EmployeeService
 
 enum Role
 {
-  WREHOUSE_WORKER = 0;
+  WAREHOUSE_WORKER = 0;
   DISPATCH_MANAGER = 1;
 }
 

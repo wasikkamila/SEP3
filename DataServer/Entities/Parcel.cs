@@ -8,8 +8,11 @@ public class Parcel
     public string Destination { get; set; }
     public ParcelStatus Status { get; set; }
     public DateTime RegisteredAt { get; set; }
+    
     public int? VanId { get; set; }
     public Van? Van { get; set; }
     
     
+    public int RegisteredByUserId { get; set; }
+    public Employee? RegisteredByUser { get; set; }
 }

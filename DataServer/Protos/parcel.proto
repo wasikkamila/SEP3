@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option csharp_namespace = "DataServer";
+option csharp_namespace = "DataServer.Grpc";
 option java_multiple_files = true;
 option java_package = "dk.via.sep3.grpc";
 option java_outer_classname = "ParcelProto";
@@ -16,7 +16,7 @@ service ParcelService {
 }
 
 
-enum ParcelStatus
+enum ParcelStatusType
 {
   REGISTERED = 0;
   DELAYED = 1;
@@ -46,9 +46,10 @@ message ParcelResponse {
 // Complete parcel information
 message ParcelData {
   int32 parcel_id = 1;
+  double volume = 2;
   double weight = 3;
   string destination = 4;
-  ParcelStatus status = 5;
+  ParcelStatusType status = 5;
   google.protobuf.Timestamp registered_at = 6;
   optional int32 van_id = 7;
   int32 registered_by_user_id = 8;
