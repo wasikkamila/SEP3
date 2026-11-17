@@ -11,7 +11,7 @@ service EmployeeService
   rpc GetByUsername (GetByUsernameRequest) returns (EmployeeReply);
 }
 
-enum Role
+enum RoleType
 {
   WAREHOUSE_WORKER = 0;
   DISPATCH_MANAGER = 1;
@@ -27,5 +27,5 @@ message EmployeeReply
   int32 id = 1;
   string username = 2;
   string password_hash = 3;
-  Role role = 4;
+  RoleType role = 4;
 }

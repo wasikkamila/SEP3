@@ -26,8 +26,7 @@ public class ParcelServiceImpl : ParcelService.ParcelServiceBase
             return new ParcelResponse
             {
                 Success = false,
-                Message =
-                    "Volume and weight must be above 0, and destination is required"
+                Message = "Volume and weight must be above 0, and destination is required"
             };
         }  
         
@@ -37,7 +36,7 @@ public class ParcelServiceImpl : ParcelService.ParcelServiceBase
             Weight = request.Weight,
             Destination = request.Destination,
             Status = ParcelStatus.Registered,
-            RegisteredAt = DateTime.Now,
+            RegisteredAt = DateTime.UtcNow,
             RegisteredByUserId = request.RegisteredByUserId
             // van stays empty because it isn't in a van yet
         };
@@ -64,10 +63,20 @@ public class ParcelServiceImpl : ParcelService.ParcelServiceBase
         
     }
 
+    //search parcel by its ID
     public override async Task<ParcelResponse> GetParcelById(
         GetParcelRequest request,
         ServerCallContext context)
     {
+        if (request.ParcelId <= 0)
+        {
+            return new ParcelResponse
+            {
+                Success = false,
+                Message = "Parcel id must be a positive integer"
+            };
+        }
+        
         try
         {
             Parcel parcel = await repository.GetSingleAsync(
@@ -99,7 +108,7 @@ public class ParcelServiceImpl : ParcelService.ParcelServiceBase
             Weight = parcel.Weight,
             Destination = parcel.Destination,
             Status = (ParcelStatusType)parcel.Status,
-            RegisteredAt = Timestamp.FromDateTime(parcel.RegisteredAt),
+            RegisteredAt = Timestamp.FromDateTime(DateTime.SpecifyKind(parcel.RegisteredAt, DateTimeKind.Utc)),
             RegisteredByUserId = parcel.RegisteredByUserId
         };
 
