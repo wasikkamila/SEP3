@@ -1,0 +1,68 @@
+﻿@page "/admin"
+@attribute [Authorize(Roles = "Admin")]
+@inject ParcelClient.Services.IParcelService Service
+@using ParcelClient.Model
+
+<h3 class="mb-3">All parcels</h3>
+
+@if (parcels.Count == 0)
+{
+    <p>No parcels registered yet.</p>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Destination</th>
+            <th>Size (cm)</th>
+            <th>Weight</th>
+            <th>Status</th>
+            <th>Registered</th>
+            <th></th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var p in parcels)
+        {
+            <tr>
+                <td>@p.Id</td>
+                <td>@p.Destination</td>
+                <td>@p.Length x @p.Width x @p.Height</td>
+                <td>@p.Weight kg</td>
+                <td><span class="badge @BadgeClass(p.Status)">@p.Status</span></td>
+                <td>@p.RegisteredAt.ToString("dd.MM.yyyy HH:mm")</td>
+                <td class="text-end">
+                    @if (p.Status != ParcelStatus.Dispatched)
+                    {
+                        <button class="btn btn-sm btn-success" @onclick="() => SetStatus(p.Id, ParcelStatus.Dispatched)">Dispatch</button>
+                        <button class="btn btn-sm btn-warning" @onclick="() => SetStatus(p.Id, ParcelStatus.Delayed)">Delay</button>
+                    }
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}
+@code {
+    private List<Parcel> parcels = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        parcels = await Service.GetAllAsync();
+    }
+
+    private async Task SetStatus(string id, ParcelStatus status)
+    {
+        await Service.UpdateStatusAsync(id, status);
+        parcels = await Service.GetAllAsync();
+    }
+
+    private static string BadgeClass(ParcelStatus status) => status switch
+    {
+        ParcelStatus.Dispatched => "bg-success",
+        ParcelStatus.Delayed => "bg-warning text-dark",
+        _ => "bg-secondary"
+    };
+}
