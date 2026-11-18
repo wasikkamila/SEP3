@@ -1,0 +1,65 @@
+@page "/register-parcel"
+@using ParcelClient.Services
+@inject HttpParcelService ParcelService
+@rendermode InteractiveServer
+
+<h3>Register New Parcel</h3>
+
+<EditForm Model="newParcel" OnValidSubmit="RegisterAsync"
+          FormName="registerParcel">
+    <DataAnnotationsValidator />
+
+    <div class="mb-3">
+        <label>Volume</label>
+        <InputNumber class="form-control"
+                     @bind-Value="newParcel.Volume" />
+    </div>
+
+    <div class="mb-3">
+        <label>Weight (kg)</label>
+        <InputNumber class="form-control"
+                     @bind-Value="newParcel.Weight" />
+    </div>
+
+    <div class="mb-3">
+        <label>Destination</label>
+        <InputText class="form-control"
+                   @bind-Value="newParcel.Destination" />
+    </div>
+
+    <div class="mb-3">
+        <label>Registered By User ID</label>
+        <InputNumber class="form-control"
+                     @bind-Value="newParcel.RegisteredByUserId" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Register Parcel
+    </button>
+</EditForm>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <p class="mt-3">@message</p>
+}
+
+@code {
+    private CreateParcelRequest newParcel = new();
+    private string message = "";
+
+    // Send parcel information to the server
+    private async Task RegisterAsync()
+    {
+        try
+        {
+            var result = await ParcelService.CreateAsync(newParcel);
+
+            message = $"Parcel registered successfully! ID: {result.ParcelId}";
+            newParcel = new CreateParcelRequest();
+        }
+        catch (Exception ex)
+        {
+            message = $"Registration failed: {ex.Message}";
+        }
+    }
+}
