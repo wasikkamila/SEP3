@@ -11,6 +11,13 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSingleton<IParcelService, MockParcelService>();
 
+builder.Services.AddHttpClient<HttpParcelService>(client =>
+{
+    client.BaseAddress = new Uri(
+        builder.Configuration["ParcelApi:BaseUrl"]
+        ?? "http://localhost:8080/");
+});
+
 // ---- Authentication / authorization (SEP3-23, SEP3-24) ----
 builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
