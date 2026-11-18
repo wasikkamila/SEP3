@@ -1,6 +1,5 @@
 using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json.Serialization;
 
 namespace ParcelClient.Services;
 
@@ -8,34 +7,45 @@ public class HttpParcelService
 {
     private readonly HttpClient httpClient;
 
+    // Connect to the Java server
     public HttpParcelService(HttpClient httpClient)
     {
         this.httpClient = httpClient;
     }
 
+    // Save a new parcel
     public async Task<ParcelResponse> CreateAsync(
         CreateParcelRequest parcel)
     {
         HttpResponseMessage response =
-            await httpClient.PostAsJsonAsync("/parcels", parcel);
+            await httpClient.PostAsJsonAsync(
+                "parcels", parcel);
 
         if (!response.IsSuccessStatusCode)
         {
-            string error = await response.Content.ReadAsStringAsync();
-            throw new HttpRequestException(error);
+            string error = await response.Content
+                .ReadAsStringAsync();
+
+            throw new HttpRequestException(
+                $"Parcel registration failed: {error}");
         }
 
         return await response.Content
             .ReadFromJsonAsync<ParcelResponse>()
-            ?? throw new Exception("Empty server response");
+            ?? throw new Exception(
+                "Empty response from server");
     }
 
-    public async Task<ParcelResponse?> GetByIdAsync(int parcelId)
+    // Find a parcel using its ID
+    public async Task<ParcelResponse?> GetByIdAsync(
+        int parcelId)
     {
         HttpResponseMessage response =
-            await httpClient.GetAsync($"/parcels/{parcelId}");
+            await httpClient.GetAsync(
+                $"parcels/{parcelId}");
 
-        if (response.StatusCode == HttpStatusCode.NotFound)
+        if (response.StatusCode ==
+            HttpStatusCode.NotFound)
         {
             return null;
         }
@@ -47,23 +57,36 @@ public class HttpParcelService
     }
 }
 
+// Information needed to register a parcel
 public class CreateParcelRequest
 {
     public double Volume { get; set; }
+
     public double Weight { get; set; }
+
     public string Destination { get; set; } = "";
+
     public int RegisteredByUserId { get; set; }
+
+    public string? PreferredVanId { get; set; }
 }
 
+// Information received from the server
 public class ParcelResponse
 {
     public int ParcelId { get; set; }
+
     public double Volume { get; set; }
+
     public double Weight { get; set; }
+
     public string Destination { get; set; } = "";
+
     public string Status { get; set; } = "";
+
     public string TimeRegistered { get; set; } = "";
 
     public string? VanId { get; set; }
+
     public int RegisteredByUserId { get; set; }
 }
