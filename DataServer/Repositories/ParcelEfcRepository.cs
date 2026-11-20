@@ -1,7 +1,6 @@
 ﻿using DataServer.Data;
 using DataServer.Entities;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic.CompilerServices;
 
 namespace DataServer.Repositories;
 
@@ -45,5 +44,44 @@ public class ParcelEfcRepository : IParcelRepository
     {
         return db.Parcels.AsQueryable();
     }
-    
+
+    public async Task<Parcel> GetLatestAsync()
+    {
+        Parcel? parcel = await db.Parcels
+            .OrderByDescending(p => p.RegisteredAt)
+            .ThenByDescending(p => p.Id)
+            .FirstOrDefaultAsync();
+
+        if (parcel == null)
+        {
+            throw new InvalidOperationException("No parcels registered");
+        }
+
+        return parcel;
+    }
+
+    public async  Task DeleteAsync(int id)
+    {
+        Parcel parcel = await GetSingleAsync(id);
+        db.Parcels.Remove(parcel);
+        await db.SaveChangesAsync();
+    }
+
+    public async Task<Parcel> AssignVanAsync(int parcelId, int? vanId)
+    {
+        Parcel parcel = await GetSingleAsync(parcelId);
+
+        if (vanId.HasValue)
+        {
+            bool vanExists = await db.Vans.AnyAsync(v => v.Id == vanId.Value);
+            if (!vanExists)
+            {
+                throw new InvalidOperationException($"van with id {vanId} not found");
+            }
+        }
+
+        parcel.VanId = vanId;
+        await db.SaveChangesAsync();
+        return parcel;
+    }
 }
