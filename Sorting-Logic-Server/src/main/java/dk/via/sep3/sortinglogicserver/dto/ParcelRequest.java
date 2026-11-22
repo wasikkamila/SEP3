@@ -18,7 +18,7 @@ public record ParcelRequest(
     @Positive(message = "User ID must be positive")
     int registeredByUserId,
 
-    String preferredVanId
+    int preferredVanId
 
 ) {
 }

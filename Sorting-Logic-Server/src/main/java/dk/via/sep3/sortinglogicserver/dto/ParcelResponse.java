@@ -8,7 +8,7 @@ public record ParcelResponse(
     String destination,
     String status,
     String timeRegistered,
-    String vanId,
+    int vanId,
     int registeredByUserId
 ) {
 }
