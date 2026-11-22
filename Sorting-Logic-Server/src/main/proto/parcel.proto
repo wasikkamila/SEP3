@@ -1,21 +1,30 @@
-
 syntax = "proto3";
 
-option csharp_namespace = "DataServer";
+option csharp_namespace = "DataServer.Grpc";
 option java_multiple_files = true;
 option java_package = "dk.via.sep3.grpc";
 option java_outer_classname = "ParcelProto";
 
 package parcel;
 
+import "google/protobuf/timestamp.proto";
+
 // gRPC service for parcel operations
 service ParcelService {
-  rpc SaveParcel(SaveParcelRequest) returns (ParcelResponse);
-  rpc GetParcel(GetParcelRequest) returns (ParcelResponse);
-  rpc GetAvailableVans(GetAvailableVansRequest)
-      returns (GetAvailableVansResponse);
-  rpc AssignParcelToVan(AssignParcelToVanRequest)
-      returns (AssignParcelToVanResponse);
+  rpc CreateParcel (SaveParcelRequest) returns (ParcelResponse);
+  rpc GetParcelById (GetParcelRequest) returns (ParcelResponse);
+
+  rpc GetLatestParcel(GetLatestParcelRequest) returns (ParcelResponse);
+  rpc DeleteParcel(DeleteParcelRequest) returns (DeleteParcelResponse);
+  rpc UpdateParcel(UpdateParcelRequest) returns (ParcelResponse);
+}
+
+
+enum ParcelStatusType
+{
+  REGISTERED = 0;
+  DELAYED = 1;
+  DISPATCHED = 2;
 }
 
 // Details needed to register a parcel
@@ -23,10 +32,8 @@ message SaveParcelRequest {
   double volume = 1;
   double weight = 2;
   string destination = 3;
-  string status = 4;
-  string time_registered = 5;
-  string van_id = 6;
-  int32 registered_by_user_id = 7;
+  int32 registered_by_user_id = 4;
+  int32 van_id=5;
 }
 
 // Get a parcel by its ID
@@ -47,38 +54,34 @@ message ParcelData {
   double volume = 2;
   double weight = 3;
   string destination = 4;
-  string status = 5;
-  string time_registered = 6;
-  string van_id = 7;
+  ParcelStatusType status = 5;
+  google.protobuf.Timestamp registered_at = 6;
+  optional int32 van_id = 7;
   int32 registered_by_user_id = 8;
 }
+message GetLatestParcelRequest{
 
-// Find vans for a destination
-message GetAvailableVansRequest {
-  string destination = 1;
+}
+message DeleteParcelRequest{
+  int32 parcel_id=1;
 }
 
-// Van information
-message VanData {
-  string van_id = 1;
-  string destination = 2;
-  int32 capacity = 3;
+message DeleteParcelResponse{
+  bool success=1;
+  string message=2;
 }
 
-// List of available vans
-message GetAvailableVansResponse {
-  repeated VanData vans = 1;
+message UpdateParcelRequest{
+  int32 parcel_id=1;
+  double volume=2;
+  double weight=3;
+  string destination=4;
+  int32 van_id=5;
 }
 
-// Assign or change a parcel's van
-message AssignParcelToVanRequest {
-  int32 parcel_id = 1;
-  string van_id = 2;
-}
 
-// Result of assigning a van
-message AssignParcelToVanResponse {
-  bool success = 1;
-  string message = 2;
-  ParcelData parcel = 3;
-}
+
+
+
+
+
