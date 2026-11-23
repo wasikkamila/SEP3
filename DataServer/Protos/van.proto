@@ -11,16 +11,17 @@ package van;
 service VanService {
 
   // Get available vans for a destination
-  rpc GetAvailableVans (GetAvailableVansRequest)
-      returns (GetAvailableVansResponse);
-
-  // Assign or change a parcel's van
-  rpc AssignParcelToVan (AssignParcelToVanRequest)
-      returns (AssignParcelToVanResponse);
+  rpc GetAvailableVans (GetAvailableVansRequest) returns (GetAvailableVansResponse);
+  
+  rpc GetVans (GetVansRequest) returns (GetVansResponse);
+  
+  rpc GetVanParcelCounts (GetVanParcelCountsRequest) returns (GetVanParcelCountsResponse);
+  
 }
 
 // Request available vans
-message GetAvailableVansRequest {
+message GetAvailableVansRequest 
+{
   string destination = 1;
 }
 
@@ -29,17 +30,24 @@ message GetAvailableVansResponse {
   repeated VanData vans = 1;
 }
 
-// Request to assign a parcel to a van
-message AssignParcelToVanRequest {
-  int32 parcel_id = 1;
-  string van_id = 2;
+message GetVansRequest{}
+
+message GetVansResponse
+{
+  repeated VanData vans = 1;
 }
 
-// Result of assigning a parcel to a van
-message AssignParcelToVanResponse {
-  bool success = 1;
-  string message = 2;
+
+message GetVanParcelCountsRequest {}
+
+message GetVanParcelCountsResponse
+{
+  repeated VanParcelCountData counts = 1;
 }
+
+
+
+
 
 // Van information
 message VanData {
@@ -47,6 +55,14 @@ message VanData {
   string destination = 2;
   int32 capacity = 3;
   string route = 4;
+}
+
+message VanParcelCountData
+{
+  int32 van_id = 1;
+  string destination = 2;
+  int32 capacity = 3;
+  int32 parcel_count = 4;
 }
 
 
