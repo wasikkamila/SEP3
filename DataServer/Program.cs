@@ -11,6 +11,7 @@ builder.Services.AddGrpcReflection();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 builder.Services.AddScoped<IParcelRepository, ParcelEfcRepository>();
+builder.Services.AddScoped<IVanRepository, VanEfcRepository>();
 
 var app = builder.Build();
 
@@ -22,9 +23,9 @@ using (var scope = app.Services.CreateScope())
 }
 
 // Configure the HTTP request pipeline.
-app.MapGrpcService<DataServer.Services.ParcelServiceImpl>();
-app.MapGrpcReflectionService();
 app.MapGrpcService<ParcelServiceImpl>();
+app.MapGrpcService<VanServiceImpl>();
+app.MapGrpcReflectionService();
 app.MapGet("/", () => "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
 
 app.Run();
