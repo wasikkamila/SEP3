@@ -68,7 +68,7 @@ public class CreateParcelRequest
 
     public int RegisteredByUserId { get; set; }
 
-    public string? PreferredVanId { get; set; }
+    public int? PreferredVanId { get; set; }
 }
 
 // Information received from the server
@@ -84,9 +84,9 @@ public class ParcelResponse
 
     public string Status { get; set; } = "";
 
-    public string TimeRegistered { get; set; } = "";
+    public string? TimeRegistered { get; set; }
 
-    public string? VanId { get; set; }
+    public int? VanId { get; set; }
 
     public int RegisteredByUserId { get; set; }
 }

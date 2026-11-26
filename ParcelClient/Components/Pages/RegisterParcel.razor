@@ -5,12 +5,14 @@
 
 <h3>Register New Parcel</h3>
 
-<EditForm Model="newParcel" OnValidSubmit="RegisterAsync"
+<EditForm Model="newParcel"
+          OnValidSubmit="RegisterAsync"
           FormName="registerParcel">
+
     <DataAnnotationsValidator />
 
     <div class="mb-3">
-        <label>Volume</label>
+        <label>Volume (m³)</label>
         <InputNumber class="form-control"
                      @bind-Value="newParcel.Volume" />
     </div>
@@ -33,33 +35,60 @@
                      @bind-Value="newParcel.RegisteredByUserId" />
     </div>
 
-    <button type="submit" class="btn btn-primary">
+    <button type="submit" class="btn btn-primary"
+            disabled="@isSubmitting">
         Register Parcel
     </button>
+
 </EditForm>
 
 @if (!string.IsNullOrEmpty(message))
 {
-    <p class="mt-3">@message</p>
+    <div class="alert @(isSuccess ? "alert-success" : "alert-danger") mt-3">
+        @message
+    </div>
 }
 
 @code {
     private CreateParcelRequest newParcel = new();
     private string message = "";
+    private bool isSuccess;
+    private bool isSubmitting;
 
-    // Send parcel information to the server
+    // Register a new parcel
     private async Task RegisterAsync()
     {
+        message = "";
+        isSuccess = false;
+
+        // Validate parcel information
+        if (newParcel.Volume <= 0 ||
+            newParcel.Weight <= 0 ||
+            string.IsNullOrWhiteSpace(newParcel.Destination) ||
+            newParcel.RegisteredByUserId <= 0)
+        {
+            message = "Please enter valid parcel information.";
+            return;
+        }
+
+        isSubmitting = true;
+
         try
         {
             var result = await ParcelService.CreateAsync(newParcel);
 
+            isSuccess = true;
             message = $"Parcel registered successfully! ID: {result.ParcelId}";
+
             newParcel = new CreateParcelRequest();
         }
         catch (Exception ex)
         {
             message = $"Registration failed: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
         }
     }
 }
