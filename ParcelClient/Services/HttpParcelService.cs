@@ -55,6 +55,46 @@ public class HttpParcelService
         return await response.Content
             .ReadFromJsonAsync<ParcelResponse>();
     }
+
+    // Update an existing parcel
+    public async Task<ParcelResponse> UpdateAsync(
+        int parcelId, UpdateParcelRequest parcel)
+    {
+        HttpResponseMessage response =
+            await httpClient.PutAsJsonAsync(
+                $"parcels/{parcelId}", parcel);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            string error = await response.Content
+                .ReadAsStringAsync();
+
+            throw new HttpRequestException(
+                $"Parcel update failed: {error}");
+        }
+
+        return await response.Content
+            .ReadFromJsonAsync<ParcelResponse>()
+            ?? throw new Exception(
+                "Empty response from server");
+    }
+
+    // Delete an existing parcel
+    public async Task DeleteAsync(int parcelId)
+    {
+        HttpResponseMessage response =
+            await httpClient.DeleteAsync(
+                $"parcels/{parcelId}");
+
+        if (!response.IsSuccessStatusCode)
+        {
+            string error = await response.Content
+                .ReadAsStringAsync();
+
+            throw new HttpRequestException(
+                $"Parcel deletion failed: {error}");
+        }
+    }
 }
 
 // Information needed to register a parcel
@@ -89,4 +129,16 @@ public class ParcelResponse
     public int? VanId { get; set; }
 
     public int RegisteredByUserId { get; set; }
+}
+
+// Information needed to update a parcel
+public class UpdateParcelRequest
+{
+    public double Volume { get; set; }
+
+    public double Weight { get; set; }
+
+    public string Destination { get; set; } = "";
+
+    public int VanId { get; set; }
 }
