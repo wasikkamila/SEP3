@@ -1,0 +1,286 @@
+﻿@page "/manage-parcel"
+@using ParcelClient.Services
+@inject HttpParcelService ParcelService
+@rendermode InteractiveServer
+
+<h3>Manage Parcel</h3>
+
+<div class="mb-3">
+    <label>Parcel ID</label>
+    <InputNumber class="form-control"
+                 @bind-Value="parcelId" />
+</div>
+
+<button class="btn btn-primary"
+        @onclick="SearchAsync"
+        disabled="@isBusy">
+    Find Parcel
+</button>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert @(isSuccess ? "alert-success" : "alert-danger") mt-3">
+        @message
+    </div>
+}
+
+@if (parcel != null)
+{
+    <div class="card mt-3">
+        <div class="card-body">
+
+            <h4>Parcel Details</h4>
+
+            <p><strong>Parcel ID:</strong> @parcel.ParcelId</p>
+            <p><strong>Volume:</strong> @parcel.Volume m³</p>
+            <p><strong>Weight:</strong> @parcel.Weight kg</p>
+            <p><strong>Destination:</strong> @parcel.Destination</p>
+            <p><strong>Status:</strong> @parcel.Status</p>
+
+            <p>
+                <strong>Assigned Van:</strong>
+                @(parcel.VanId?.ToString() ?? "Not assigned")
+            </p>
+
+            @if (!isEditing && !confirmDelete)
+            {
+                <button class="btn btn-warning me-2"
+                        @onclick="StartEditing"
+                        disabled="@isBusy">
+                    Edit
+                </button>
+
+                <button class="btn btn-danger"
+                        @onclick="AskDelete"
+                        disabled="@isBusy">
+                    Delete
+                </button>
+            }
+
+            @if (isEditing)
+            {
+                <hr />
+
+                <h4>Edit Parcel</h4>
+
+                <div class="mb-3">
+                    <label>Volume (m³)</label>
+                    <InputNumber class="form-control"
+                                 @bind-Value="editParcel.Volume" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Weight (kg)</label>
+                    <InputNumber class="form-control"
+                                 @bind-Value="editParcel.Weight" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Destination</label>
+                    <InputText class="form-control"
+                               @bind-Value="editParcel.Destination" />
+                </div>
+
+                <div class="mb-3">
+                    <label>Van ID</label>
+                    <InputNumber class="form-control"
+                                 @bind-Value="editParcel.VanId" />
+                </div>
+
+                <button class="btn btn-success me-2"
+                        @onclick="UpdateAsync"
+                        disabled="@isBusy">
+                    Save Changes
+                </button>
+
+                <button class="btn btn-secondary"
+                        @onclick="CancelEditing"
+                        disabled="@isBusy">
+                    Cancel
+                </button>
+            }
+
+            @if (confirmDelete)
+            {
+                <div class="alert alert-warning mt-3">
+                    Are you sure you want to delete parcel
+                    @parcel.ParcelId?
+
+                    <div class="mt-3">
+                        <button class="btn btn-danger me-2"
+                                @onclick="DeleteAsync"
+                                disabled="@isBusy">
+                            Yes, Delete
+                        </button>
+
+                        <button class="btn btn-secondary"
+                                @onclick="CancelDelete"
+                                disabled="@isBusy">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            }
+
+        </div>
+    </div>
+}
+
+@code {
+    private int parcelId;
+    private ParcelResponse? parcel;
+    private UpdateParcelRequest editParcel = new();
+
+    private string message = "";
+    private bool isSuccess;
+    private bool isEditing;
+    private bool confirmDelete;
+    private bool isBusy;
+
+    // Find an existing parcel
+    private async Task SearchAsync()
+    {
+        message = "";
+        parcel = null;
+        isSuccess = false;
+        isEditing = false;
+        confirmDelete = false;
+
+        if (parcelId <= 0)
+        {
+            message = "Please enter a valid parcel ID.";
+            return;
+        }
+
+        isBusy = true;
+
+        try
+        {
+            parcel = await ParcelService.GetByIdAsync(parcelId);
+
+            if (parcel == null)
+            {
+                message = "Parcel not found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Search failed: {ex.Message}";
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    // Load existing information into the edit form
+    private void StartEditing()
+    {
+        if (parcel == null)
+            return;
+
+        message = "";
+        isEditing = true;
+        confirmDelete = false;
+
+        editParcel = new UpdateParcelRequest
+        {
+            Volume = parcel.Volume,
+            Weight = parcel.Weight,
+            Destination = parcel.Destination,
+            VanId = parcel.VanId ?? 0
+        };
+    }
+
+    // Save updated parcel information
+    private async Task UpdateAsync()
+    {
+        if (parcel == null)
+            return;
+
+        message = "";
+        isSuccess = false;
+
+        if (editParcel.Volume <= 0 ||
+            editParcel.Weight <= 0 ||
+            string.IsNullOrWhiteSpace(editParcel.Destination) ||
+            editParcel.Destination.Length > 100 ||
+            editParcel.VanId <= 0)
+        {
+            message = "Please enter valid parcel information and Van ID.";
+            return;
+        }
+
+        isBusy = true;
+
+        try
+        {
+            parcel = await ParcelService.UpdateAsync(
+                parcel.ParcelId, editParcel);
+
+            isSuccess = true;
+            message = "Parcel updated successfully!";
+            isEditing = false;
+        }
+        catch (Exception ex)
+        {
+            message = $"Update failed: {ex.Message}";
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+
+    // Cancel editing
+    private void CancelEditing()
+    {
+        isEditing = false;
+        message = "";
+    }
+
+    // Ask for confirmation before deleting
+    private void AskDelete()
+    {
+        message = "";
+        confirmDelete = true;
+        isEditing = false;
+    }
+
+    // Cancel deletion
+    private void CancelDelete()
+    {
+        confirmDelete = false;
+    }
+
+    // Delete the selected parcel
+    private async Task DeleteAsync()
+    {
+        if (parcel == null || !confirmDelete)
+            return;
+
+        message = "";
+        isSuccess = false;
+        isBusy = true;
+
+        try
+        {
+            await ParcelService.DeleteAsync(parcel.ParcelId);
+
+            parcel = null;
+            parcelId = 0;
+            confirmDelete = false;
+
+            isSuccess = true;
+            message = "Parcel deleted successfully!";
+        }
+        catch (Exception ex)
+        {
+            message = $"Delete failed: {ex.Message}";
+        }
+        finally
+        {
+            isBusy = false;
+        }
+    }
+}
