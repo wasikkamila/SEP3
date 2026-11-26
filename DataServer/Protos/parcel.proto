@@ -13,11 +13,13 @@ import "google/protobuf/timestamp.proto";
 service ParcelService {
   rpc CreateParcel (SaveParcelRequest) returns (ParcelResponse);
   rpc GetParcelById (GetParcelRequest) returns (ParcelResponse);
+
+  rpc GetLatestParcel (GetLatestParcelRequest) returns (ParcelResponse);
+  rpc DeleteParcel (DeleteParcelRequest) returns (DeleteParcelResponse);
+  rpc UpdateParcel (UpdateParcelRequest) returns (ParcelResponse);
 }
 
-
-enum ParcelStatusType
-{
+enum ParcelStatusType {
   REGISTERED = 0;
   DELAYED = 1;
   DISPATCHED = 2;
@@ -29,6 +31,7 @@ message SaveParcelRequest {
   double weight = 2;
   string destination = 3;
   int32 registered_by_user_id = 4;
+  int32 van_id = 5;
 }
 
 // Get a parcel by its ID
@@ -55,9 +58,22 @@ message ParcelData {
   int32 registered_by_user_id = 8;
 }
 
+message GetLatestParcelRequest {
+}
 
+message DeleteParcelRequest {
+  int32 parcel_id = 1;
+}
 
+message DeleteParcelResponse {
+  bool success = 1;
+  string message = 2;
+}
 
-
-  
- 
+message UpdateParcelRequest {
+  int32 parcel_id = 1;
+  double volume = 2;
+  double weight = 3;
+  string destination = 4;
+  int32 van_id = 5;
+}
