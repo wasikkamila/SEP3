@@ -17,6 +17,10 @@ service VanService {
   // Assign or change a parcel's van
   rpc AssignParcelToVan (AssignParcelToVanRequest)
       returns (AssignParcelToVanResponse);
+
+  // Count how many parcels are assigned to each van
+  rpc GetParcelCounts (GetParcelCountsRequest)
+      returns (GetParcelCountsResponse);
 }
 
 // Request available vans
@@ -32,7 +36,7 @@ message GetAvailableVansResponse {
 // Request to assign a parcel to a van
 message AssignParcelToVanRequest {
   int32 parcel_id = 1;
-  string van_id = 2;
+  int32 van_id = 2;
 }
 
 // Result of assigning a parcel to a van
@@ -43,12 +47,20 @@ message AssignParcelToVanResponse {
 
 // Van information
 message VanData {
-  string van_id = 1;
+  int32 van_id = 1;
   string destination = 2;
   int32 capacity = 3;
   string route = 4;
 }
 
+message GetParcelCountsRequest {
+}
 
+message VanParcelCount {
+  int32 van_id = 1;
+  int32 parcel_count = 2;
+}
 
-  
+message GetParcelCountsResponse {
+  repeated VanParcelCount counts = 1;
+}

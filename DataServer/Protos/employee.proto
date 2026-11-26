@@ -1,14 +1,19 @@
 ﻿syntax = "proto3";
 
 option csharp_namespace = "DataServer.Grpc";
-option java_package = "dk.via.parcelsorting.grpc";
+option java_package = "dk.via.sep3.grpc";
 option java_multiple_files = true;
 
 package employee;
 
-service EmployeeService 
+service EmployeeService
 {
-  rpc GetByUsername (GetByUsernameRequest) returns (EmployeeReply);
+  rpc GetByUsername (GetByUsernameRequest)
+      returns (EmployeeReply);
+
+  // Verify employee login
+  rpc VerifyLogin (VerifyLoginRequest)
+      returns (VerifyLoginResponse);
 }
 
 enum Role
@@ -27,5 +32,20 @@ message EmployeeReply
   int32 id = 1;
   string username = 2;
   string password_hash = 3;
+  Role role = 4;
+}
+
+message VerifyLoginRequest
+{
+  string username = 1;
+  string password = 2;
+}
+
+// Return the authentication result
+message VerifyLoginResponse
+{
+  bool authenticated = 1;
+  int32 employee_id = 2;
+  string username = 3;
   Role role = 4;
 }
