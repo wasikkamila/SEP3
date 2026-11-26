@@ -1,0 +1,96 @@
+﻿@page "/search-parcel"
+@using ParcelClient.Services
+@inject HttpParcelService ParcelService
+@rendermode InteractiveServer
+
+<h3>Search Parcel</h3>
+
+<div class="mb-3">
+    <label>Parcel ID</label>
+    <InputNumber class="form-control"
+                 @bind-Value="parcelId" />
+</div>
+
+<button class="btn btn-primary"
+        @onclick="SearchAsync"
+        disabled="@isSearching">
+    Search Parcel
+</button>
+
+@if (!string.IsNullOrEmpty(message))
+{
+    <div class="alert alert-danger mt-3">
+        @message
+    </div>
+}
+
+@if (parcel != null)
+{
+    <div class="card mt-3">
+        <div class="card-body">
+            <h4>Parcel Details</h4>
+
+            <p><strong>Parcel ID:</strong> @parcel.ParcelId</p>
+
+            <p><strong>Volume:</strong> @parcel.Volume m³</p>
+
+            <p><strong>Weight:</strong> @parcel.Weight kg</p>
+
+            <p><strong>Destination:</strong> @parcel.Destination</p>
+
+            <p><strong>Status:</strong> @parcel.Status</p>
+
+            <p><strong>Registered At:</strong> @parcel.TimeRegistered</p>
+
+            <p>
+                <strong>Assigned Van:</strong>
+                @(parcel.VanId?.ToString() ?? "Not assigned")
+            </p>
+
+            <p>
+                <strong>Registered By:</strong>
+                @parcel.RegisteredByUserId
+            </p>
+        </div>
+    </div>
+}
+
+@code {
+    private int parcelId;
+    private ParcelResponse? parcel;
+    private string message = "";
+    private bool isSearching;
+
+    // Search for a parcel using its ID
+    private async Task SearchAsync()
+    {
+        message = "";
+        parcel = null;
+
+        if (parcelId <= 0)
+        {
+            message = "Please enter a valid parcel ID.";
+            return;
+        }
+
+        isSearching = true;
+
+        try
+        {
+            parcel = await ParcelService.GetByIdAsync(parcelId);
+
+            if (parcel == null)
+            {
+                message = "Parcel not found.";
+            }
+        }
+        catch (Exception ex)
+        {
+            message = $"Search failed: {ex.Message}";
+        }
+        finally
+        {
+            isSearching = false;
+        }
+    }
+}
